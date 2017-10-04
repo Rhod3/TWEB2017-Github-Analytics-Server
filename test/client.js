@@ -9,13 +9,13 @@ describe('Client', () => {
     it('should allow me to get a page', () => {
       const response = client.getPage(1);
       response.header.should.have.property('pageNumber', 1);
-      response.heander.should.have.property('hasNextPage', true);
+      response.header.should.have.property('hasNextPage', true);
     });
 
     it('should tell me when I am on the last page', () => {
       const response = client.getPage(10);
       response.header.should.have.property('pageNumber', 10);
-      response.heander.should.have.property('hasNextPage', true);
+      response.header.should.have.property('hasNextPage', false);
     });
 
     it('should return an error code if the page does not exist', () => {
