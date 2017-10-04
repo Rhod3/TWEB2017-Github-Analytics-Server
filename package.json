@@ -1,0 +1,24 @@
+{
+  "name": "github-analytics-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rhod3/TWEB2017-Github-Analytics-Server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rhod3/TWEB2017-Github-Analytics-Server/issues"
+  },
+  "homepage": "https://github.com/Rhod3/TWEB2017-Github-Analytics-Server#readme",
+  "devDependencies": {
+    "eslint": "^4.8.0",
+    "eslint-config-airbnb-base": "^12.0.1",
+    "eslint-plugin-import": "^2.7.0"
+  }
+}
