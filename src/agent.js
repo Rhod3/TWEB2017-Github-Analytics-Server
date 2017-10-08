@@ -5,8 +5,27 @@ class Agent {
     this.credentials = cred;
   }
 
+  fetchAllCommits(user, allCommitsFetched) {
+    let commits = [];
+
+    this.fetchAllContributedRepos(user, (error, allContributedRepos) => {
+      allContributedRepos.forEach((repo) => {
+        const url = `https://api.github.com/repos/${repo}/commits?author=${user}`;
+        request
+          .get(url)
+          .auth(this.credentials.username, this.credentials.token)
+          .set('Accept', 'application/vnd.github.v3+json')
+          .end((err, res) => {
+            console.log(res.body.length);
+            commits = commits.concat(res.body);
+          });
+      });
+    });
+    allCommitsFetched(null, commits);
+  }
+
   fetchAllContributedRepos(user, allContributedReposFetched) {
-    const url = `https://api.github.com/users/${user}/repos`;
+    const url = `https://api.github.com/users/${user}/repos?type=all`;
     let contributedRepos = [];
     function fetchPage(pageUrl, credentials) {
       request
