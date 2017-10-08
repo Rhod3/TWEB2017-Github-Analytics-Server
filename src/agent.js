@@ -10,7 +10,7 @@ class Agent {
 
     this.fetchAllContributedRepos(user, (error, allContributedRepos) => {
       allContributedRepos.forEach((repo) => {
-        const url = `https://api.github.com/repos/${repo}/commits?author=${user}`;
+        const url = `https://api.github.com/repos/${repo.full_name}/commits?author=${user}`;
         request
           .get(url)
           .auth(this.credentials.username, this.credentials.token)
@@ -34,7 +34,12 @@ class Agent {
         .set('Accept', 'application/vnd.github.v3+json')
         .end((err, res) => {
           // console.log(res.body.keys('full_name'));
-          const fullNames = res.body.map(r => r.full_name);
+          const fullNames = res.body.map((r) => {
+            const tmp = {};
+            tmp.full_name = r.full_name;
+            tmp.language = r.language;
+            return tmp;
+          });
           console.log(fullNames);
           contributedRepos = contributedRepos.concat(fullNames);
           if (res.links.next) {
