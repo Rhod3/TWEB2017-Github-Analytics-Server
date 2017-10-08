@@ -22,4 +22,20 @@ describe('agent', () => {
       done();
     });
   });
+
+  it('should fetch stats for a commit', (done) => {
+    agent.getStatsForCommit('https://api.github.com/repos/Rhod3/TWEB2017-Github-Analytics-Server/commits/e8633b56a8caeb744dcc35d0285d0052c9ef7b07', (err, res) => {
+      should.not.exist(err);
+      res.should.be.an('object');
+      done();
+    });
+  });
+
+  it('should calculate data for a user', (done) => {
+    agent.calculateData(user, (err, res) => {
+      should.not.exist(err);
+      res.should.be.an('array');
+      done();
+    });
+  });
 });
