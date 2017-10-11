@@ -19,22 +19,21 @@ class Agent {
     data.statsGlobal.nbTotal = 0;
 
     this.fetchAllCommits(user, (err, commits) => {
-
       let commitToProcess = commits.length;
 
       commits.forEach((c) => {
-        // console.log(c);
         this.getStatsForCommit(c.url, (error, stats) => {
           commitToProcess -= 1;
 
           data.statsGlobal.nbCommits += 1;
           data.statsGlobal.nbWordsMessage += c.commit.message.split(' ').length;
           data.statsGlobal.nbWordsMessagePerCommit =
-            data.statsGlobal.nbWordsMessage / data.statsGlobal.nbCommits;
+            (data.statsGlobal.nbWordsMessage / data.statsGlobal.nbCommits).toFixed(1);
           data.statsGlobal.nbAdd += stats.additions;
           data.statsGlobal.nbDelete += stats.deletions;
           data.statsGlobal.nbTotal += stats.total;
-          data.statsGlobal.nbTotalPerCommit = data.statsGlobal.nbTotal / data.statsGlobal.nbCommits;
+          data.statsGlobal.nbTotalPerCommit =
+            (data.statsGlobal.nbTotal / data.statsGlobal.nbCommits).toFixed(1);
 
           if (c.language) {
             if (!(c.language in data.stats)) {
@@ -49,12 +48,12 @@ class Agent {
             data.stats[c.language].nbCommit += 1;
             data.stats[c.language].nbWordsMessage += c.commit.message.split(' ').length;
             data.stats[c.language].nbWordsMessagePerCommit =
-              data.stats[c.language].nbWordsMessage / data.stats[c.language].nbCommit;
+              (data.stats[c.language].nbWordsMessage / data.stats[c.language].nbCommit).toFixed(1);
             data.stats[c.language].nbAdd += stats.additions;
             data.stats[c.language].nbDelete += stats.deletions;
             data.stats[c.language].nbTotal += stats.total;
             data.stats[c.language].nbTotalPerCommit =
-              data.stats[c.language].nbTotal / data.stats[c.language].nbCommit;
+              (data.stats[c.language].nbTotal / data.stats[c.language].nbCommit).toFixed(1);
           }
 
           if (commitToProcess === 0) {
@@ -77,7 +76,6 @@ class Agent {
       .set('Accept', 'application/vnd.github.v3+json')
       .end((err, res) => {
         if (!err) {
-          // console.log(res.body.stats);
           stats(null, res.body.stats);
         }
       });
@@ -106,6 +104,7 @@ class Agent {
             reposStillToFetch -= 1;
 
             const commitFromRepo = res.body;
+
             for (let i = 0; i < commitFromRepo.length;) {
               commitFromRepo[i].language = repo.language;
               i += 1;
@@ -114,9 +113,6 @@ class Agent {
             commits = commits.concat(commitFromRepo);
 
             if (reposStillToFetch === 0) {
-              console.log('Commits Fetched');
-              console.log(commits.length);
-              // console.log(commits[0]);
               allCommitsFetched(null, commits);
             }
           });
@@ -133,15 +129,15 @@ class Agent {
         .auth(credentials.username, credentials.token)
         .set('Accept', 'application/vnd.github.v3+json')
         .end((err, res) => {
-          // console.log(res.body.keys('full_name'));
           const fullNames = res.body.map((r) => {
             const tmp = {};
             tmp.full_name = r.full_name;
             tmp.language = r.language;
             return tmp;
           });
-          // console.log(fullNames);
+
           contributedRepos = contributedRepos.concat(fullNames);
+
           if (res.links.next) {
             fetchPage(res.links.next, credentials);
           } else {
