@@ -34,7 +34,7 @@ describe('agent', () => {
   it('should calculate data for a user', (done) => {
     agent.calculateData(user, (err, res) => {
       should.not.exist(err);
-      res.should.be.an('array');
+      res.should.be.an('object');
       done();
     });
   });
