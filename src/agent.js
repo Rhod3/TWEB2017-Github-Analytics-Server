@@ -1,9 +1,22 @@
 const request = require('superagent');
 const Throttle = require('superagent-throttle');
+const fs = require('fs');
 
 class Agent {
   constructor(cred) {
     this.credentials = cred;
+  }
+
+  createFile(user) {
+    this.calculateData(user, (err, dataCalculated) => {
+      const payload = [];
+      payload.push(dataCalculated);
+      console.log(payload);
+
+      const out = fs.createWriteStream('data.json');
+      out.write(JSON.stringify(payload, null, 2));
+      out.end();
+    });
   }
 
   calculateData(user, dataCalculated) {
@@ -23,6 +36,7 @@ class Agent {
 
       commits.forEach((c) => {
         this.getStatsForCommit(c.url, (error, stats) => {
+          console.log('Quering ' + c.sha);
           commitToProcess -= 1;
 
           data.statsGlobal.nbCommits += 1;
@@ -45,6 +59,7 @@ class Agent {
               data.stats[c.language].nbDelete = 0;
               data.stats[c.language].nbTotal = 0;
             }
+
             data.stats[c.language].nbCommit += 1;
             data.stats[c.language].nbWordsMessage += c.commit.message.split(' ').length;
             data.stats[c.language].nbWordsMessagePerCommit =
@@ -57,7 +72,7 @@ class Agent {
           }
 
           if (commitToProcess === 0) {
-            console.log(data);
+            // console.log(data);
             dataCalculated(null, data);
           }
         });
@@ -101,6 +116,7 @@ class Agent {
           .set('Accept', 'application/vnd.github.v3+json')
           .use(throttle.plugin())
           .end((err, res) => {
+            console.log('Quering repo ' + url);
             reposStillToFetch -= 1;
 
             const commitFromRepo = res.body;
@@ -123,12 +139,15 @@ class Agent {
   fetchAllContributedRepos(user, allContributedReposFetched) {
     const url = `https://api.github.com/users/${user}/repos?type=all`;
     let contributedRepos = [];
+    let i = 0;
     function fetchPage(pageUrl, credentials) {
       request
         .get(url)
         .auth(credentials.username, credentials.token)
         .set('Accept', 'application/vnd.github.v3+json')
         .end((err, res) => {
+          console.log('Quering user ' + url + i);
+          i++;
           const fullNames = res.body.map((r) => {
             const tmp = {};
             tmp.full_name = r.full_name;
