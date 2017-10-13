@@ -5,7 +5,7 @@ const Agent = require('../src/agent.js');
 const should = chai.should();
 
 describe('agent', () => {
-  const user = 'wasadigi';
+  const user = 'Rhod3';
   const agent = new Agent(credentials);
 
   it('should create a data file', (done) => {

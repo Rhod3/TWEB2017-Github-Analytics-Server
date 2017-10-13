@@ -74,7 +74,7 @@ class Agent {
                 (data.stats[c.language].nbTotal / data.stats[c.language].nbCommit).toFixed(1);
             }
           }
-
+          // console.log(commitToProcess);
           if (commitToProcess === 0) {
             // console.log(data);
             dataCalculated(null, data);
@@ -89,7 +89,7 @@ class Agent {
    * stats, so we have to fetch them one by one.
    */
   getStatsForCommit(commitUrl, stats) {
-    console.log('Quering single commit ' + commitUrl);
+    // console.log('Quering single commit ' + commitUrl);
     if (commitUrl) {
       request
         .get(commitUrl)
@@ -106,12 +106,13 @@ class Agent {
   }
 
   fetchAllCommits(user, allCommitsFetched) {
+    let commits = [];
+
     this.fetchAllContributedRepos(user, (error, allContributedRepos) => {
-      let commits = [];
       let reposStillToFetch = allContributedRepos.length;
       const throttle = new Throttle({
         active: true, // set false to pause queue
-        rate: 500, // how many requests can be sent every `ratePer`
+        rate: 5, // how many requests can be sent every `ratePer`
         ratePer: 1000, // number of ms in which `rate` requests may be sent
         concurrent: 10, // how many requests can be sent concurrently
       });
@@ -119,28 +120,34 @@ class Agent {
       allContributedRepos.forEach((repo) => {
         const url = `https://api.github.com/repos/${repo.full_name}/commits?author=${user}`;
 
-        request
-          .get(url)
-          .auth(this.credentials.username, this.credentials.token)
-          .set('Accept', 'application/vnd.github.v3+json')
-          .use(throttle.plugin())
-          .end((err, res) => {
-            console.log('Quering repo ' + url);
-            reposStillToFetch -= 1;
+        function fetchPageCommit(pageUrl, credentials) {
+          request
+            .get(pageUrl)
+            .auth(credentials.username, credentials.token)
+            .set('Accept', 'application/vnd.github.v3+json')
+            .use(throttle.plugin())
+            .end((err, res) => {
+              const commitFromRepo = res.body;
+              // console.log('Quering repo ' + commitFromRepo.length + ' ' + url);
 
-            const commitFromRepo = res.body;
+              for (let i = 0; i < commitFromRepo.length; i += 1) {
+                commitFromRepo[i].language = repo.language;
+              }
 
-            for (let i = 0; i < commitFromRepo.length;) {
-              commitFromRepo[i].language = repo.language;
-              i += 1;
-            }
+              commits = commits.concat(commitFromRepo);
 
-            commits = commits.concat(commitFromRepo);
-
-            if (reposStillToFetch === 0) {
-              allCommitsFetched(null, commits);
-            }
-          });
+              if (res.links.next) {
+                // console.log(res.links.next);
+                fetchPageCommit(res.links.next, credentials);
+              } else {
+                reposStillToFetch -= 1;
+                if (reposStillToFetch === 0) {
+                  allCommitsFetched(null, commits);
+                }
+              }
+            });
+        }
+        fetchPageCommit(url, this.credentials);
       });
     });
   }
@@ -155,7 +162,7 @@ class Agent {
         .auth(credentials.username, credentials.token)
         .set('Accept', 'application/vnd.github.v3+json')
         .end((err, res) => {
-          console.log('Quering user ' + res.links.next);
+          // console.log('Quering user ' + res.links.next);
 
           const fullNames = res.body.map((r) => {
             const tmp = {};
@@ -171,7 +178,7 @@ class Agent {
           if (res.links.next) {
             fetchPage(res.links.next, credentials);
           } else {
-            console.log(contributedRepos);
+            // console.log(contributedRepos);
             allContributedReposFetched(null, contributedRepos);
           }
         });
