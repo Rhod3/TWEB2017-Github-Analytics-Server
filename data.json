@@ -1,55 +1,65 @@
 {
-  "Rhod3": {
-    "user": "Rhod3",
+  "wasadigi": {
+    "user": "wasadigi",
     "statsGlobal": {
-      "nbCommits": 125,
-      "nbWordsMessage": 488,
-      "nbAdd": 565468,
-      "nbDelete": 433417,
-      "nbTotal": 998885,
-      "nbWordsMessagePerCommit": "3.9",
-      "nbTotalPerCommit": "7991.1"
+      "nbCommits": 338,
+      "nbWordsMessage": 1748,
+      "nbAdd": 279426,
+      "nbDelete": 59985,
+      "nbTotal": 339411,
+      "nbWordsMessagePerCommit": "5.2",
+      "nbTotalPerCommit": "1004.2"
     },
     "stats": {
-      "Java": {
-        "language": "Java",
-        "nbCommit": 53,
-        "nbWordsMessage": 219,
-        "nbAdd": 66361,
-        "nbDelete": 823,
-        "nbTotal": 67184,
-        "nbWordsMessagePerCommit": "4.1",
-        "nbTotalPerCommit": "1267.6"
-      },
       "JavaScript": {
         "language": "JavaScript",
-        "nbCommit": 24,
-        "nbWordsMessage": 97,
-        "nbAdd": 395435,
-        "nbDelete": 393935,
-        "nbTotal": 789370,
-        "nbWordsMessagePerCommit": "4.0",
-        "nbTotalPerCommit": "32890.4"
+        "nbCommit": 41,
+        "nbWordsMessage": 362,
+        "nbAdd": 235751,
+        "nbDelete": 131,
+        "nbTotal": 235882,
+        "nbWordsMessagePerCommit": "8.8",
+        "nbTotalPerCommit": "5753.2"
       },
-      "Python": {
-        "language": "Python",
-        "nbCommit": 9,
-        "nbWordsMessage": 23,
-        "nbAdd": 640,
-        "nbDelete": 186,
-        "nbTotal": 826,
-        "nbWordsMessagePerCommit": "2.6",
-        "nbTotalPerCommit": "91.8"
+      "Java": {
+        "language": "Java",
+        "nbCommit": 109,
+        "nbWordsMessage": 560,
+        "nbAdd": 32189,
+        "nbDelete": 2179,
+        "nbTotal": 34368,
+        "nbWordsMessagePerCommit": "5.1",
+        "nbTotalPerCommit": "315.3"
+      },
+      "Shell": {
+        "language": "Shell",
+        "nbCommit": 8,
+        "nbWordsMessage": 49,
+        "nbAdd": 738,
+        "nbDelete": 87,
+        "nbTotal": 825,
+        "nbWordsMessagePerCommit": "6.1",
+        "nbTotalPerCommit": "103.1"
       },
       "CSS": {
         "language": "CSS",
-        "nbCommit": 26,
-        "nbWordsMessage": 118,
-        "nbAdd": 31694,
-        "nbDelete": 2713,
-        "nbTotal": 34407,
-        "nbWordsMessagePerCommit": "4.5",
-        "nbTotalPerCommit": "1323.3"
+        "nbCommit": 4,
+        "nbWordsMessage": 8,
+        "nbAdd": 28,
+        "nbDelete": 0,
+        "nbTotal": 28,
+        "nbWordsMessagePerCommit": "2.0",
+        "nbTotalPerCommit": "7.0"
+      },
+      "HTML": {
+        "language": "HTML",
+        "nbCommit": 5,
+        "nbWordsMessage": 15,
+        "nbAdd": 47,
+        "nbDelete": 6,
+        "nbTotal": 53,
+        "nbWordsMessagePerCommit": "3.0",
+        "nbTotalPerCommit": "10.6"
       }
     }
   }
