@@ -9,8 +9,8 @@ class Agent {
 
   createFile(user) {
     this.calculateData(user, (err, dataCalculated) => {
-      const payload = [];
-      payload.push(dataCalculated);
+      const payload = {};
+      payload[user] = dataCalculated;
       console.log(payload);
 
       const out = fs.createWriteStream('data.json');
