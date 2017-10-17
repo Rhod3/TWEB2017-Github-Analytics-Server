@@ -8,8 +8,16 @@ describe('agent', () => {
   const user = 'Rhod3';
   const agent = new Agent(credentials);
 
+  /*
   it('should create a data file', (done) => {
     agent.createFile(user, (fileCreated) => {
+      done();
+    });
+  });
+  */
+
+  it('should update file', (done) => {
+    agent.updateFile(() => {
       done();
     });
   });
