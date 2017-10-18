@@ -3,6 +3,14 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
+const creds = {
+  username: process.env.username,
+  token: process.env.token,
+};
+/**
+ * Use the next line if you dont use an heroku app
+ * require('../github-credentials.json');
+ */
 
 const throttle = new Throttle({
   active: true, // set false to pause queue
@@ -236,3 +244,7 @@ class Agent {
 }
 
 module.exports = Agent;
+
+const agent = new Agent(creds);
+
+agent.updateFile();
