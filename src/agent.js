@@ -3,9 +3,14 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+
+const throttle = new Throttle({
+  active: true, // set false to pause queue
+  rate: 4950, // how many requests can be sent every `ratePer`
+  ratePer: 3600000, // number of ms in which `rate` requests may be sent
+  concurrent: 10, // how many requests can be sent concurrently
+});
+
 
 function getCurrentDataFromClientAsJSON(json) {
   request('https://raw.githubusercontent.com/Rhod3/TWEB2017-Github-Analytics/master/docs/data/data.json', (error, response) => {
@@ -24,40 +29,27 @@ class Agent {
     this.credentials = cred;
   }
 
-  /*
-  getCurrentRateLimit(currentRateLimit) {
-    request
-      .get('https://api.github.com/rate_limit')
-      .auth(this.credentials.username, this.credentials.token)
-      .set('Accept', 'application/vnd.github.v3+json')
-      .end((err, res) => {
-        if (!err) {
-          currentRateLimit(res.body.rate);
-        }
-      });
-  }
-
-  async handleRequest(url) {
-    const throttle = new Throttle({
-      active: true, // set false to pause queue
-      rate: 5, // how many requests can be sent every `ratePer`
-      ratePer: 1000, // number of ms in which `rate` requests may be sent
-      concurrent: 10, // how many requests can be sent concurrently
-    });
-
-    getCurrentRateLimit((currentRateLimit) => {
-      if (currentRateLimit.remaining === 0) {
-        const currentTime = Math.round(new Date().getTime() / 1000);
-        const waitingTime = currentRateLimit.rate.reset - currentTime;
-        await sleep(waitingTime + 4000);
-      }
-      return request
-        .get(pageUrl)
-        .auth(credentials.username, credentials.token)
+  /**
+   * If we get a commit from a repo, it doesn't include the add/del
+   * stats, so we have to fetch them one by one.
+   */
+  getStatsForCommit(commitUrl, stats) {
+    console.log(`Quering single commit ${commitUrl}`);
+    if (commitUrl) {
+      request
+        .get(commitUrl)
+        .auth(this.credentials.username, this.credentials.token)
+        .use(throttle.plugin())
         .set('Accept', 'application/vnd.github.v3+json')
-    });
+        .end((err, res) => {
+          if (!err) {
+            stats(null, res.body.stats);
+          }
+        });
+    } else {
+      stats('No URL', null);
+    }
   }
-  */
 
   updateFile(fileUpdated) {
     getCurrentDataFromClientAsJSON((json) => {
@@ -166,38 +158,11 @@ class Agent {
     });
   }
 
-  /**
-   * If we get a commit from a repo, it doesn't include the add/del
-   * stats, so we have to fetch them one by one.
-   */
-  getStatsForCommit(commitUrl, stats) {
-    console.log('Quering single commit ' + commitUrl);
-    if (commitUrl) {
-      request
-        .get(commitUrl)
-        .auth(this.credentials.username, this.credentials.token)
-        .set('Accept', 'application/vnd.github.v3+json')
-        .end((err, res) => {
-          if (!err) {
-            stats(null, res.body.stats);
-          }
-        });
-    } else {
-      stats('No URL', null);
-    }
-  }
-
   fetchAllCommits(user, allCommitsFetched) {
     let commits = [];
 
     this.fetchAllContributedRepos(user, (error, allContributedRepos) => {
       let reposStillToFetch = allContributedRepos.length;
-      const throttle = new Throttle({
-        active: true, // set false to pause queue
-        rate: 5, // how many requests can be sent every `ratePer`
-        ratePer: 1000, // number of ms in which `rate` requests may be sent
-        concurrent: 10, // how many requests can be sent concurrently
-      });
 
       allContributedRepos.forEach((repo) => {
         const url = `https://api.github.com/repos/${repo.full_name}/commits?author=${user}`;
@@ -243,6 +208,7 @@ class Agent {
         .get(pageUrl)
         .auth(credentials.username, credentials.token)
         .set('Accept', 'application/vnd.github.v3+json')
+        .use(throttle.plugin())
         .end((err, res) => {
           console.log('Quering user ' + res.links.next);
 
