@@ -3,16 +3,15 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
-/*
+
 const creds = {
   username: process.env.username,
   token: process.env.token,
 };
-*/
 /**
  * Use the next line if you dont use an heroku app
  */
-const creds = require('../github-credentials.json');
+// const creds = require('../github-credentials.json');
 
 const throttle = new Throttle({
   active: true, // set false to pause queue
@@ -116,7 +115,7 @@ class Agent {
       let commitToProcess = commits.length;
       commits.forEach((c) => {
         this.getStatsForCommit(c.url, (error, stats) => {
-          console.log('Quering ' + c.sha);
+          console.log(`Quering ${c.sha}`);
           commitToProcess -= 1;
 
           if (!error) {
@@ -180,7 +179,7 @@ class Agent {
             .use(throttle.plugin())
             .end((err, res) => {
               const commitFromRepo = res.body;
-              console.log('Quering repo ' + commitFromRepo.length + ' ' + url);
+              console.log(`Quering repo ${commitFromRepo.length} ${url}`);
 
               for (let i = 0; i < commitFromRepo.length; i += 1) {
                 commitFromRepo[i].language = repo.language;
@@ -215,7 +214,7 @@ class Agent {
         .set('Accept', 'application/vnd.github.v3+json')
         .use(throttle.plugin())
         .end((err, res) => {
-          console.log('Quering user ' + res.links.next);
+          console.log(`Quering user ${res.links.next}`);
 
           const fullNames = res.body.map((r) => {
             const tmp = {};
