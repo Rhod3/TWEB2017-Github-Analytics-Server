@@ -18,6 +18,7 @@ describe('agent', () => {
 
   it('should update file', (done) => {
     agent.updateFile(() => {
+      console.log('File Updated');
       done();
     });
   });

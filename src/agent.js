@@ -67,20 +67,15 @@ class Agent {
       const data = json;
       let size = users.length;
       users.forEach((key) => {
-        console.log(size + ' KEY: ' + key);
-        console.log(size + ' VALUE: ' + json[key]);
-
         this.calculateData(key, (err, dataCalculated) => {
           data[key] = dataCalculated;
+          console.log(`User to process : ${size}`);
           size -= 1;
           if (size === 0) {
-            const out = fs.createWriteStream('data2.json');
-            out.write(JSON.stringify(data, null, 2));
-            out.end();
-
             const s = new Storage(this.credentials.username, this.credentials.token, 'TWEB2017-Github-Analytics');
             const currentTime = new Date().toISOString().replace('T', ' ').replace(/\..*$/, '');
             const commitMessage = `Updated Data ${currentTime}`;
+
             s.publish('docs/data/data.json', JSON.stringify(data, null, 2), commitMessage);
             console.log('PUBLISHED to repo');
 
@@ -175,7 +170,7 @@ class Agent {
       let reposStillToFetch = allContributedRepos.length;
 
       allContributedRepos.forEach((repo) => {
-        const url = `https://api.github.com/repos/${repo.full_name}/commits?author=${user}`;
+        const url = `https://api.github.com/repos/${repo.full_name}/commits?author=${user}&per_page=100`;
 
         function fetchPageCommit(pageUrl, credentials) {
           request
@@ -210,7 +205,7 @@ class Agent {
   }
 
   fetchAllContributedRepos(user, allContributedReposFetched) {
-    const url = `https://api.github.com/users/${user}/repos?type=all`;
+    const url = `https://api.github.com/users/${user}/repos?type=all&per_page=100`;
     let contributedRepos = [];
 
     function fetchPage(pageUrl, credentials) {
@@ -229,14 +224,11 @@ class Agent {
             return tmp;
           });
 
-          // console.log(contributedRepos);
-
           contributedRepos = contributedRepos.concat(fullNames);
 
           if (res.links.next) {
             fetchPage(res.links.next, credentials);
           } else {
-            // console.log(contributedRepos);
             allContributedReposFetched(null, contributedRepos);
           }
         });
@@ -249,4 +241,6 @@ module.exports = Agent;
 
 const agent = new Agent(creds);
 
-agent.updateFile();
+agent.updateFile(() => {
+  console.log('Job\'s done');
+});
