@@ -1,7 +1,7 @@
 # TWEB2017-Github-Analytics-Server
 
 ## What does this repository contain ?
-This repo contains the code for the crawler in the 
+This repo contains the code for the agent/crawler in the 
 [TWEB2017 Github Analytics](https://rhod3.github.io/TWEB2017-Github-Analytics/ "TWEB2017 Github Analytics") project (available at this [repo](https://github.com/Rhod3/TWEB2017-Github-Analytics)).
 
 ## What does the code do ?
