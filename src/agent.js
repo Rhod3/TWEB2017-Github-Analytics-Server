@@ -55,7 +55,7 @@ class Agent {
           if (!err && res.statusCode === 200) {
             stats(null, res.body.stats);
           } else {
-            console.log(`ERROR when fetching stats from commit: ${err}`);
+            console.log(`ERROR when from ${commitUrl}: ${err}`);
           }
         });
     } else {
@@ -201,7 +201,7 @@ class Agent {
                   }
                 }
               } else {
-                console.log(`ERROR when fetching commit page from repo ${err}`);
+                console.log(`ERROR from ${pageUrl} : ${err}`);
                 reposStillToFetch -= 1;
                 if (reposStillToFetch === 0) {
                   allCommitsFetched(null, commits);
@@ -243,7 +243,7 @@ class Agent {
               allContributedReposFetched(null, contributedRepos);
             }
           } else {
-            console.log(`ERROR when fetching repo page: ${err}`);
+            console.log(`ERROR from ${pageUrl} : ${err}`);
           }
         });
     }
