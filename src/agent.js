@@ -3,19 +3,20 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
-
+/*
 const creds = {
   username: process.env.username,
   token: process.env.token,
 };
+*/
 /**
  * Use the next line if you dont use an heroku app
  */
-// const creds = require('../github-credentials.json');
+const creds = require('../github-credentials.json');
 
 const throttle = new Throttle({
   active: true, // set false to pause queue
-  rate: 4950, // how many requests can be sent every `ratePer`
+  rate: 2800, // how many requests can be sent every `ratePer`
   ratePer: 3600000, // number of ms in which `rate` requests may be sent
   concurrent: 10, // how many requests can be sent concurrently
 });
@@ -28,7 +29,7 @@ function getCurrentDataFromClientAsJSON(json) {
     if (!error && response.statusCode === 200) {
       json(JSON.parse(response.text));
     } else {
-      console.log('ERROR');
+      console.log(`ERROR when getting old data from client repo: ${error}`);
     }
   });
 }
@@ -51,8 +52,10 @@ class Agent {
         .use(throttle.plugin())
         .set('Accept', 'application/vnd.github.v3+json')
         .end((err, res) => {
-          if (!err) {
+          if (!err && res.statusCode === 200) {
             stats(null, res.body.stats);
+          } else {
+            console.log(`ERROR when fetching stats from commit: ${err}`);
           }
         });
     } else {
@@ -178,19 +181,27 @@ class Agent {
             .set('Accept', 'application/vnd.github.v3+json')
             .use(throttle.plugin())
             .end((err, res) => {
-              const commitFromRepo = res.body;
-              console.log(`Quering repo ${commitFromRepo.length} ${url}`);
+              if (!err && res.statusCode === 200) {
+                const commitFromRepo = res.body;
+                console.log(`Quering repo ${commitFromRepo.length} ${url}`);
 
-              for (let i = 0; i < commitFromRepo.length; i += 1) {
-                commitFromRepo[i].language = repo.language;
-              }
+                for (let i = 0; i < commitFromRepo.length; i += 1) {
+                  commitFromRepo[i].language = repo.language;
+                }
 
-              commits = commits.concat(commitFromRepo);
+                commits = commits.concat(commitFromRepo);
 
-              if (res.links.next) {
-                // console.log(res.links.next);
-                fetchPageCommit(res.links.next, credentials);
+                if (res.links.next) {
+                  // console.log(res.links.next);
+                  fetchPageCommit(res.links.next, credentials);
+                } else {
+                  reposStillToFetch -= 1;
+                  if (reposStillToFetch === 0) {
+                    allCommitsFetched(null, commits);
+                  }
+                }
               } else {
+                console.log(`ERROR when fetching commit page from repo ${err}`);
                 reposStillToFetch -= 1;
                 if (reposStillToFetch === 0) {
                   allCommitsFetched(null, commits);
@@ -214,21 +225,25 @@ class Agent {
         .set('Accept', 'application/vnd.github.v3+json')
         .use(throttle.plugin())
         .end((err, res) => {
-          console.log(`Quering user ${res.links.next}`);
+          if (!err && res.statusCode === 200) {
+            console.log(`Quering page repo from user ${res.links.next}`);
 
-          const fullNames = res.body.map((r) => {
-            const tmp = {};
-            tmp.full_name = r.full_name;
-            tmp.language = r.language;
-            return tmp;
-          });
+            const fullNames = res.body.map((r) => {
+              const tmp = {};
+              tmp.full_name = r.full_name;
+              tmp.language = r.language;
+              return tmp;
+            });
 
-          contributedRepos = contributedRepos.concat(fullNames);
+            contributedRepos = contributedRepos.concat(fullNames);
 
-          if (res.links.next) {
-            fetchPage(res.links.next, credentials);
+            if (res.links.next) {
+              fetchPage(res.links.next, credentials);
+            } else {
+              allContributedReposFetched(null, contributedRepos);
+            }
           } else {
-            allContributedReposFetched(null, contributedRepos);
+            console.log(`ERROR when fetching repo page: ${err}`);
           }
         });
     }

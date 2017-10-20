@@ -1,6 +1,13 @@
 {
         "version": "0.2.0",
         "configurations": [
+
+            {
+                "type": "node",
+                "request": "launch",
+                "name": "Lauch agent.js",
+                "program": "${workspaceRoot}/src/agent.js"
+            },
         {
             "type": "node",
             "request": "launch",
