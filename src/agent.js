@@ -16,7 +16,7 @@ const creds = {
 
 const throttle = new Throttle({
   active: true, // set false to pause queue
-  rate: 5000, // how many requests can be sent every `ratePer`
+  rate: 4950, // how many requests can be sent every `ratePer`
   ratePer: 3600000, // number of ms in which `rate` requests may be sent
   concurrent: 10, // how many requests can be sent concurrently
 });
