@@ -3,16 +3,16 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
-
+/*
 const creds = {
   username: process.env.username,
   token: process.env.token,
 };
-
+*/
 /**
  * Use the next line if you dont use an heroku app
  */
-// const creds = require('../github-credentials.json');
+const creds = require('../github-credentials.json');
 
 const throttle = new Throttle({
   active: true, // set false to pause queue
@@ -219,6 +219,7 @@ class Agent {
     let contributedRepos = [];
 
     function fetchPage(pageUrl, credentials) {
+      console.log(credentials);
       request
         .get(pageUrl)
         .auth(credentials.username, credentials.token)
