@@ -3,6 +3,8 @@ const Throttle = require('superagent-throttle');
 const Storage = require('../src/storage');
 const fs = require('fs');
 
+const oldDataURL = 'https://raw.githubusercontent.com/Rhod3/TWEB2017-Github-Analytics/master/docs/data/data.json';
+const clientSideRepoName = 'TWEB2017-Github-Analytics';
 
 const creds = {
   username: process.env.username,
