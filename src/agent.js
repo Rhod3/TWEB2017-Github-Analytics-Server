@@ -8,6 +8,7 @@ const creds = {
   username: process.env.username,
   token: process.env.token,
 };
+
 /**
  * Use the next line if you dont use an heroku app
  */
@@ -109,50 +110,35 @@ class Agent {
     data.stats = {};
     data.statsGlobal.nbCommits = 0;
     data.statsGlobal.nbWordsMessage = 0;
-    data.statsGlobal.nbAdd = 0;
-    data.statsGlobal.nbDelete = 0;
-    data.statsGlobal.nbTotal = 0;
+    data.statsGlobal.messages = '';
 
     this.fetchAllCommits(user, (err, commits) => {
-      let commitToProcess = commits.length;
-      commits.forEach((c) => {
-        this.getStatsForCommit(c.url, (error, stats) => {
-          console.log(`Quering ${c.sha}`);
+      if (!err) {
+        let commitToProcess = commits.length;
+        commits.forEach((c) => {
+          console.log(`Processing ${c.sha}`);
           commitToProcess -= 1;
 
-          if (!error) {
-            data.statsGlobal.nbCommits += 1;
-            data.statsGlobal.nbWordsMessage += c.commit.message.split(' ').length;
-            data.statsGlobal.nbWordsMessagePerCommit =
-              (data.statsGlobal.nbWordsMessage / data.statsGlobal.nbCommits).toFixed(1);
-            data.statsGlobal.nbAdd += stats.additions;
-            data.statsGlobal.nbDelete += stats.deletions;
-            data.statsGlobal.nbTotal += stats.total;
-            data.statsGlobal.nbTotalPerCommit =
-              (data.statsGlobal.nbTotal / data.statsGlobal.nbCommits).toFixed(1);
+          data.statsGlobal.messages += c.commit.message;
+          data.statsGlobal.messages += ' ';
+          data.statsGlobal.nbCommits += 1;
+          data.statsGlobal.nbWordsMessage += c.commit.message.split(' ').length;
+          data.statsGlobal.nbWordsMessagePerCommit =
+            (data.statsGlobal.nbWordsMessage / data.statsGlobal.nbCommits).toFixed(1);
 
-            if (c.language) {
-              if (!(c.language in data.stats)) {
-                data.stats[c.language] = {};
-                data.stats[c.language].language = c.language;
-                data.stats[c.language].nbCommit = 0;
-                data.stats[c.language].nbWordsMessage = 0;
-                data.stats[c.language].nbAdd = 0;
-                data.stats[c.language].nbDelete = 0;
-                data.stats[c.language].nbTotal = 0;
-              }
-
-              data.stats[c.language].nbCommit += 1;
-              data.stats[c.language].nbWordsMessage += c.commit.message.split(' ').length;
-              data.stats[c.language].nbWordsMessagePerCommit =
-                (data.stats[c.language].nbWordsMessage /
-                  data.stats[c.language].nbCommit).toFixed(1);
-              data.stats[c.language].nbAdd += stats.additions;
-              data.stats[c.language].nbDelete += stats.deletions;
-              data.stats[c.language].nbTotal += stats.total;
-              data.stats[c.language].nbTotalPerCommit =
-                (data.stats[c.language].nbTotal / data.stats[c.language].nbCommit).toFixed(1);
+          if (c.language) {
+            if (!(c.language in data.stats)) {
+              data.stats[c.language] = {};
+              data.stats[c.language].language = c.language;
+              data.stats[c.language].nbCommit = 0;
+              data.stats[c.language].nbWordsMessage = 0;
             }
+
+            data.stats[c.language].nbCommit += 1;
+            data.stats[c.language].nbWordsMessage += c.commit.message.split(' ').length;
+            data.stats[c.language].nbWordsMessagePerCommit =
+              (data.stats[c.language].nbWordsMessage /
+                data.stats[c.language].nbCommit).toFixed(1);
           }
           // console.log(commitToProcess);
           if (commitToProcess === 0) {
@@ -160,7 +146,7 @@ class Agent {
             dataCalculated(null, data);
           }
         });
-      });
+      }
     });
   }
 
